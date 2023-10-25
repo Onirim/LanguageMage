@@ -1,7 +1,7 @@
 ## Interface: 100000
-## Version: 1.0.2
-## Title: Hello World
-## Notes: My first addon
+## Version: 0.1.0
+## Title: Language Mage
+## Notes: Add-on de gestion des langues roleplay
 ## Author: Onirim
 ## SavedVariables: LanguageMageDB
 
