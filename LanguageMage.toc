@@ -1,4 +1,4 @@
-## Interface: 100000
+## Interface: 51886
 ## Version: 0.1.0
 ## Title: Language Mage
 ## Notes: Add-on de gestion des langues roleplay
