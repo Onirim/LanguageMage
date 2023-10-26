@@ -6,3 +6,5 @@
 ## SavedVariables: LanguageMageDB
 
 Core.lua
+Translator.lua
+Language.lua

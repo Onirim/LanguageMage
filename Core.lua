@@ -1,120 +1,168 @@
--- Initialise characterName à nil
-local characterName = nil
-local languageUsed = "none"
+-- Crée une fenêtre contextuelle vide
+local mainFrame = CreateFrame("Frame", "LanguageMageFrame", UIParent, "BasicFrameTemplateWithInset")
+mainFrame:SetSize(450, 300)  -- Définissez la taille de la fenêtre contextuelle
+mainFrame:SetPoint("CENTER", -100, 0)  -- Positionnez la fenêtre légèrement à gauche de l'écran
+mainFrame:Hide()  -- Masquez la fenêtre par défaut
 
--- Fonction pour traduire un mot en orc
-local function TranslateWordToOrc(word)
-    local translation = ""
-    local wordLength = #word
+-- Titre de la fenêtre
+mainFrame.title = mainFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+mainFrame.title:SetPoint("LEFT", mainFrame.TitleBg, "LEFT", 5, 0)
+mainFrame.title:SetText("Fenêtre de traduction LanguageMage")
 
-    
-        if wordLength == 1 then
-            local orcChars = {"A", "N", "G", "O", "L"}
-            translation = translation .. orcChars[math.random(#orcChars)]
-        elseif wordLength == 2 then
-            local orcCharPairs = {"Ha", "Ko", "No", "Mu", "Ag", "Ka", "Gi", "Il"}
-            translation = translation .. orcCharPairs[math.random(#orcCharPairs)]
-		elseif wordLength == 3 then
-            local orcCharPairs = {"Lok", "Tar", "Kaz", "Ruk", "Kek", "Mog", "Zug", "Gul", "Nuk", "Aaz", "Kil", "Ogg"}
-            translation = translation .. orcCharPairs[math.random(#orcCharPairs)]
-		elseif wordLength == 4 then
-            local orcCharPairs = {"Rega", "Nogu", "Tago", "Uruk", "Kagg", "Zaga", "Grom", "Ogar", "Gesh", "Thok", "Dogg", "Maka", "Maza"}
-            translation = translation .. orcCharPairs[math.random(#orcCharPairs)]
-		elseif wordLength == 5 then
-            local orcCharPairs = {"Regas", "Nogah", "Kazum", "Magan", "No'bu", "Golar", "Throm", "Zugas", "Re'ka", "No'ku", "Ro'th"}
-            translation = translation .. orcCharPairs[math.random(#orcCharPairs)]
-		elseif wordLength == 6 then
-            local orcCharPairs = {"Thrakk", "Revash", "Nakazz", "Moguna", "No'gor", "Goth'a", "Raznos", "Ogerin", "Gezzno", "Thukad", "Makogg", "Aaz'no"}
-            translation = translation .. orcCharPairs[math.random(#orcCharPairs)]
-		elseif wordLength == 7 then
-            local orcCharPairs = {"Lok'Tar", "Gul'rok", "Kazreth", "Tov'osh", "Zil'Nok", "Rath'is", "Kil'azi"}
-            translation = translation .. orcCharPairs[math.random(#orcCharPairs)]
-		elseif wordLength == 8 then
-            local orcCharPairs = {"Throm'ka", "Osh'Kava", "Gul'nath", "Kog'zela", "Ragath'a", "Zuggossh", "Moth'aga"}
-            translation = translation .. orcCharPairs[math.random(#orcCharPairs)]
-		elseif wordLength == 9 then
-            local orcCharPairs = {"Tov'nokaz", "Osh'kazil", "No'throma", "Gesh'nuka", "Lok'mogul", "Lok'bolar", "Ruk'ka'ha"}
-            translation = translation .. orcCharPairs[math.random(#orcCharPairs)]
-		elseif wordLength == 10 then
-            local orcCharPairs = {"Regasnogah", "Kazum'nobu", "Throm'bola", "Gesh'zugas", "Maza'rotha", "Ogerin'naz"}
-            translation = translation .. orcCharPairs[math.random(#orcCharPairs)]
-		elseif wordLength == 11 then
-            local orcCharPairs = {"Thrakk'reva", "Kaz'goth'no", "No'gor'goth", "Kil'azi'aga", "Zug-zug'ama", "Maza'thrakk"}
-            translation = translation .. orcCharPairs[math.random(#orcCharPairs)]
-		elseif wordLength == 12 then
-            local orcCharPairs = {"Lokando'nash", "Ul'gammathar", "Golgonnashar", "Dalggo'mazah"}
-            translation = translation .. orcCharPairs[math.random(#orcCharPairs)]
-		elseif wordLength == 13 then
-            local orcCharPairs = {"Khaz'rogg'ahn", "Moth'kazoroth"}
-            translation = translation .. orcCharPairs[math.random(#orcCharPairs)]
-        else
-            -- Générez des caractères aléatoires pour les autres positions
-            local orcRandomChars = {"A", "N", "G", "O", "L", "Ha", "Ko", "No", "Mu", "Ag", "Ka", "Gi", "Il"}
-            translation = translation .. orcRandomChars[math.random(#orcRandomChars)]
-        end
-    
+-- Gestion du déplacement de la fenêtre
+mainFrame:SetMovable(true)
+mainFrame:EnableMouse(true)
+mainFrame:RegisterForDrag("LeftButton")
+mainFrame:SetScript("OnDragStart", function(self)
+    self:StartMoving()
+end)
+mainFrame:SetScript("OnDragStop", function(self)
+    self:StopMovingOrSizing()
+end)
 
-    return translation
-end
+-----------------------------------------------------------------------------------------------
+-- Création du cadre d'input
+local inputBoxCadre = CreateFrame("Frame", nil, mainFrame, "BackdropTemplate")
+inputBoxCadre:SetSize(mainFrame:GetWidth() -20, (mainFrame:GetHeight() / 2) -50) -- Largeur, Hauteur
+inputBoxCadre:SetPoint("TOP", mainFrame, "TOP", -2, -55)
 
--- Fonction pour traduire une phrase complète en orc
-local function TranslateToOrc(phrase)
-    if languageUsed == "orc" then
-        local translatedWords = {}
-        local words = {strsplit(" ", phrase)} -- Sépare la phrase en mots
+-- Définition de l'arrière-plan
+inputBoxCadre:SetBackdrop({
+    bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+    edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+    tile = true,
+    tileSize = 32,
+    edgeSize = 32,
+    insets = { left = 5, right = 5, top = 5, bottom = 5 }
+})
+inputBoxCadre:SetBackdropColor(0, 0, 0) -- Couleur de l'arrière-plan
 
-        for _, word in ipairs(words) do
-            if word == " " then
-                table.insert(translatedWords, " ")
-            else
-                table.insert(translatedWords, TranslateWordToOrc(word))
-            end
-        end
+-- Création de l'EditBox à l'intérieur du cadre
+local MyEditBox = CreateFrame("EditBox", nil, inputBoxCadre)
+MyEditBox:SetSize(inputBoxCadre:GetWidth() - 10, inputBoxCadre:GetHeight()) -- Largeur, Hauteur (un peu plus petites que le cadre pour ne pas dépasser)
+MyEditBox:SetPoint("TOP", inputBoxCadre, "TOP", 5, -10) -- Centré dans le cadre
 
-        local translatedPhrase = table.concat(translatedWords, " ")
-        return translatedPhrase
-    else
-        return phrase  -- Aucune traduction si le langage utilisé n'est pas "orc"
+-- Configuration du texte d'invite
+local placeholderText = "Saisissez le texte à traduire ici"
+MyEditBox:SetText(placeholderText)
+MyEditBox:SetTextColor(0.5, 0.5, 0.5) -- Couleur grise
+
+MyEditBox:SetScript("OnEditFocusGained", function(self)
+    if self:GetText() == placeholderText then
+        self:SetText("")
+        self:SetTextColor(1, 1, 1) -- Couleur blanche
     end
+end)
+
+MyEditBox:SetScript("OnEditFocusLost", function(self)
+    if self:GetText() == "" then
+        self:SetText(placeholderText)
+        self:SetTextColor(0.5, 0.5, 0.5) -- Couleur grise
+    end
+end)
+
+-- Configuration de l'EditBox pour permettre plusieurs lignes
+MyEditBox:SetMultiLine(true)
+
+-- Configuration de la police
+MyEditBox:SetFontObject(ChatFontNormal)
+
+-- Configuration du comportement du texte
+MyEditBox:SetAutoFocus(false) -- Ne pas focaliser automatiquement
+MyEditBox:SetTextInsets(5, 5, 3, 3) -- Marge intérieure
+
+-- Configuration du script
+MyEditBox:SetScript("OnEscapePressed", function(self)
+    self:ClearFocus() -- Enlever le focus quand on appuie sur Echap
+end)
+
+-----------------------------------------------------------------------------------------------------
+-- Création du cadre d'affichage
+local displayBoxCadre = CreateFrame("Frame", nil, mainFrame, "BackdropTemplate")
+displayBoxCadre:SetSize(mainFrame:GetWidth() -20, (mainFrame:GetHeight() / 2) -50) -- Largeur, Hauteur
+displayBoxCadre:SetPoint("BOTTOM", mainFrame, "BOTTOM", -2, 40) -- En bas du cadre
+
+-- Définition de l'arrière-plan
+displayBoxCadre:SetBackdrop({
+    bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+    edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+    tile = true,
+    tileSize = 32,
+    edgeSize = 32,
+    insets = { left = 5, right = 5, top = 5, bottom = 5 }
+})
+inputBoxCadre:SetBackdropColor(0, 0, 0) -- Couleur de l'arrière-plan
+
+-- Création de l'EditBox à l'intérieur du cadre d'affichage
+local MyDisplayBox = CreateFrame("EditBox", nil, displayBoxCadre)
+MyDisplayBox:SetSize(displayBoxCadre:GetWidth(), displayBoxCadre:GetHeight()) -- Largeur, Hauteur
+MyDisplayBox:SetPoint("TOP", displayBoxCadre, "TOP", 5, -10) 
+
+-- Configuration de l'EditBox pour permettre plusieurs lignes et être en lecture seule
+MyDisplayBox:SetMultiLine(true)
+MyDisplayBox:SetAutoFocus(false) -- Ne pas focaliser automatiquement
+MyDisplayBox:EnableMouse(true) -- Permettre la sélection à la souris
+MyDisplayBox:SetTextInsets(5, 5, 3, 3) -- Marge intérieure
+MyDisplayBox:SetScript("OnKeyDown", function(self) self:ClearFocus() end) -- Empêcher la saisie
+
+-- Configuration de la police
+MyDisplayBox:SetFontObject(ChatFontNormal)
+
+-----------------------------------------------------------------------------------------------------
+-- Création du menu déroulant
+local languageDropDown = CreateFrame("Frame", "LanguageDropDown", mainFrame, "UIDropDownMenuTemplate")
+languageDropDown:SetPoint("TOP", mainFrame, "TOP", 50, -25)
+
+-- Création du libellé
+local languageLabel = mainFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+languageLabel:SetPoint("TOPLEFT", mainFrame, "TOPLEFT", 12, -33)
+languageLabel:SetText("Sélectionnez la langue de traduction")
+
+-- Initialisation du menu déroulant
+-- Initialisation du menu déroulant
+UIDropDownMenu_Initialize(languageDropDown, function(self, level, menuList)
+    local info = UIDropDownMenu_CreateInfo()
+    if (level or 1) == 1 then
+        -- Ajout des options de premier niveau
+        info.text, info.checked = "Commun", "Commun" == UIDropDownMenu_GetSelectedName(languageDropDown)
+        info.func = function()
+            UIDropDownMenu_SetSelectedName(languageDropDown, "Commun")
+            languageUsed = 0
+        end
+        UIDropDownMenu_AddButton(info)
+
+        info.text, info.checked = "Orc", "Orc" == UIDropDownMenu_GetSelectedName(languageDropDown)
+        info.func = function()
+            UIDropDownMenu_SetSelectedName(languageDropDown, "Orc")
+            languageUsed = 1
+        end
+        UIDropDownMenu_AddButton(info)
+    end
+end)
+
+-- Sélection de l'option par défaut
+UIDropDownMenu_SetSelectedName(languageDropDown, "Commun")
+languageUsed = 0
+
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------------------
+-- Afficher la fenêtre lorsque la commande /lmage show est utilisée
+local function ShowLanguageMageFrame()
+    mainFrame:Show()
 end
-
-
-
 
 -- Fonction pour gérer les commandes
 local function LanguageMageCommand(msg, editbox)
-    local command, arg = strsplit(" ", msg, 2)
-
-    if command == "name" then
-        -- Commande pour définir le nom du personnage
-        characterName = arg or nil  -- Réinitialise characterName
-        if characterName then
-            print("Nom du PNJ configuré : " .. characterName)
-        else
-            print("Nom du PNJ effacé.")
-        end
-    elseif command == "say" then
-        -- Commande pour faire prononcer un texte dans le canal Emote (/e)
-        if characterName then
-            local npcColor = "ffffff9f"  -- Couleur jaune pour les PNJ
-            local translatedText = arg  -- Par défaut, utilise le texte d'origine
-            if languageUsed == "orc" then
-                translatedText = TranslateToOrc(arg)  -- Traduire en orc si la langue est "orc"
-            end
-            local emoteMessage = "/e dit : " .. translatedText
-            DoEmote(emoteMessage)
-        else
-            print("Erreur : Veuillez définir un nom de PNJ avec /lmage name [nom du personnage] avant d'utiliser /lmage say.")
-        end
-    elseif command == "language" then
-        print(languageUsed)
-        -- Commande pour sélectionner le langage à utiliser si différent de nul
-        if arg == "none" or arg == "common" or arg == "orc" then
-            languageUsed = arg
-            print("Votre PNJ utilisera maintenant la langue " .. languageUsed)
-        else
-            print("Le langage " .. arg .. " n'est pas pris en charge. Les langages pris en charge sont 'none', 'common', et 'orc'.")
-        end
+    if msg == "show" then
+        ShowLanguageMageFrame()
+    elseif msg == "hide" then
+        mainFrame:Hide()
     end
 end
 
