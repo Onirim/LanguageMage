@@ -1,7 +1,10 @@
 -- Fonction pour traduire un mot en orc
-local function TranslateWordToOrc(word)
-    local translation = ""
-    local wordLength = #word
+LanguageMage = LanguageMage or {}
+
+function LanguageMage.TranslateWordToOrc(word)
+	
+    translation = ""
+    wordLength = #word
 
     
         if wordLength == 1 then
@@ -49,6 +52,6 @@ local function TranslateWordToOrc(word)
             translation = translation .. orcRandomChars[math.random(#orcRandomChars)]
         end
     
-
+	
     return translation
 end

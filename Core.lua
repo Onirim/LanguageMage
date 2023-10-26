@@ -105,6 +105,16 @@ MyDisplayBox:EnableMouse(true) -- Permettre la sélection à la souris
 MyDisplayBox:SetTextInsets(5, 5, 3, 3) -- Marge intérieure
 MyDisplayBox:SetScript("OnKeyDown", function(self) self:ClearFocus() end) -- Empêcher la saisie
 
+-- Configuration de l'EditBox pour permettre la sélection à la souris
+MyDisplayBox:EnableMouse(true)
+MyDisplayBox:SetScript("OnMouseDown", function(self)
+    self:HighlightText()
+end)
+
+-- Création du texte à afficher
+-- displayBoxCadre.text = displayBoxCadre:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+-- displayBoxCadre.text:SetPoint("LEFT", displayBoxCadre, "LEFT")
+
 -- Configuration de la police
 MyDisplayBox:SetFontObject(ChatFontNormal)
 
@@ -118,7 +128,6 @@ local languageLabel = mainFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal
 languageLabel:SetPoint("TOPLEFT", mainFrame, "TOPLEFT", 12, -33)
 languageLabel:SetText("Sélectionnez la langue de traduction")
 
--- Initialisation du menu déroulant
 -- Initialisation du menu déroulant
 UIDropDownMenu_Initialize(languageDropDown, function(self, level, menuList)
     local info = UIDropDownMenu_CreateInfo()
@@ -144,7 +153,21 @@ end)
 UIDropDownMenu_SetSelectedName(languageDropDown, "Commun")
 languageUsed = 0
 
+-----------------------------------------------------------------------------------------------------
+-- Création du bouton
+local translateButton = CreateFrame("Button", nil, mainFrame, "GameMenuButtonTemplate")
+translateButton:SetPoint("BOTTOM", mainFrame, "BOTTOM", 0, 10) -- En bas du cadre avec une marge de 10 px
+translateButton:SetSize(100, 40) -- Largeur, Hauteur
+translateButton:SetText("Traduire")
 
+-- Configuration du script du bouton
+translateButton:SetScript("OnClick", function()
+    -- Appel de la fonction Translate avec le texte de la zone de saisie
+    local translatedPhrase = LanguageMage.Translate(MyEditBox:GetText())
+    
+    -- Affichage du texte traduit dans le cadre du bas
+    MyDisplayBox:SetText(translatedPhrase)
+end)
 
 
 
