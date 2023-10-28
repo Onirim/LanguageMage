@@ -39,7 +39,7 @@ inputBoxCadre:SetBackdropColor(0, 0, 0) -- Couleur de l'arrière-plan
 
 -- Création de l'EditBox à l'intérieur du cadre
 local MyEditBox = CreateFrame("EditBox", nil, inputBoxCadre)
-MyEditBox:SetSize(inputBoxCadre:GetWidth() - 10, inputBoxCadre:GetHeight()) -- Largeur, Hauteur (un peu plus petites que le cadre pour ne pas dépasser)
+MyEditBox:SetSize(inputBoxCadre:GetWidth() - 15, inputBoxCadre:GetHeight()) -- Largeur, Hauteur (un peu plus petites que le cadre pour ne pas dépasser)
 MyEditBox:SetPoint("TOP", inputBoxCadre, "TOP", 5, -10) -- Centré dans le cadre
 
 -- Configuration du texte d'invite
@@ -95,25 +95,19 @@ inputBoxCadre:SetBackdropColor(0, 0, 0) -- Couleur de l'arrière-plan
 
 -- Création de l'EditBox à l'intérieur du cadre d'affichage
 local MyDisplayBox = CreateFrame("EditBox", nil, displayBoxCadre)
-MyDisplayBox:SetSize(displayBoxCadre:GetWidth(), displayBoxCadre:GetHeight()) -- Largeur, Hauteur
+MyDisplayBox:SetSize(displayBoxCadre:GetWidth() -15, displayBoxCadre:GetHeight()) -- Largeur, Hauteur
 MyDisplayBox:SetPoint("TOP", displayBoxCadre, "TOP", 5, -10) 
 
 -- Configuration de l'EditBox pour permettre plusieurs lignes et être en lecture seule
 MyDisplayBox:SetMultiLine(true)
 MyDisplayBox:SetAutoFocus(false) -- Ne pas focaliser automatiquement
-MyDisplayBox:EnableMouse(true) -- Permettre la sélection à la souris
+-- MyDisplayBox:EnableMouse(true) -- Permettre la sélection à la souris
 MyDisplayBox:SetTextInsets(5, 5, 3, 3) -- Marge intérieure
 MyDisplayBox:SetScript("OnKeyDown", function(self) self:ClearFocus() end) -- Empêcher la saisie
+-- MyDisplayBox:SetScript("OnMouseDown", function(self)
+--     self:HighlightText()
+-- end)
 
--- Configuration de l'EditBox pour permettre la sélection à la souris
-MyDisplayBox:EnableMouse(true)
-MyDisplayBox:SetScript("OnMouseDown", function(self)
-    self:HighlightText()
-end)
-
--- Création du texte à afficher
--- displayBoxCadre.text = displayBoxCadre:CreateFontString(nil, "OVERLAY", "GameFontNormal")
--- displayBoxCadre.text:SetPoint("LEFT", displayBoxCadre, "LEFT")
 
 -- Configuration de la police
 MyDisplayBox:SetFontObject(ChatFontNormal)
@@ -154,9 +148,9 @@ UIDropDownMenu_SetSelectedName(languageDropDown, "Commun")
 languageUsed = 0
 
 -----------------------------------------------------------------------------------------------------
--- Création du bouton
+-- Création du bouton de traduction
 local translateButton = CreateFrame("Button", nil, mainFrame, "GameMenuButtonTemplate")
-translateButton:SetPoint("BOTTOM", mainFrame, "BOTTOM", 0, 10) -- En bas du cadre avec une marge de 10 px
+translateButton:SetPoint("BOTTOM", mainFrame, "BOTTOM", 0, 8) -- En bas du cadre avec une marge 
 translateButton:SetSize(100, 40) -- Largeur, Hauteur
 translateButton:SetText("Traduire")
 
@@ -166,12 +160,10 @@ translateButton:SetScript("OnClick", function()
     local translatedPhrase = LanguageMage.Translate(MyEditBox:GetText())
     
     -- Affichage du texte traduit dans le cadre du bas
-    MyDisplayBox:SetText(translatedPhrase)
+    MyDisplayBox:SetText(translatedPhrase:sub(2))
+	MyDisplayBox:SetAutoFocus(true)
+	MyDisplayBox:SetFocus()
 end)
-
-
-
-
 
 
 ---------------------------------------------------------------------------------------------------
@@ -182,10 +174,8 @@ end
 
 -- Fonction pour gérer les commandes
 local function LanguageMageCommand(msg, editbox)
-    if msg == "show" then
+    if msg == "" then
         ShowLanguageMageFrame()
-    elseif msg == "hide" then
-        mainFrame:Hide()
     end
 end
 
