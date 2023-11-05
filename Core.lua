@@ -140,6 +140,13 @@ UIDropDownMenu_Initialize(languageDropDown, function(self, level, menuList)
             languageUsed = 1
         end
         UIDropDownMenu_AddButton(info)
+		
+		 info.text, info.checked = "Draconique", "Draconique" == UIDropDownMenu_GetSelectedName(languageDropDown)
+        info.func = function()
+            UIDropDownMenu_SetSelectedName(languageDropDown, "Draconique")
+            languageUsed = 2
+        end
+        UIDropDownMenu_AddButton(info)
     end
 end)
 

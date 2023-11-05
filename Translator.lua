@@ -11,10 +11,10 @@ function LanguageMage.Translate(phrase)
 
         local lastWordWasSpecialChar = false
         for i, word in ipairs(words) do
-            local specialChar = word:match("[.!?,;:]")
+            local specialChar = word:match("%.%.%.") or word:match("[.!?,;:]")
             if specialChar then
                 local actualWord, _ = word:match("([^"..specialChar.."]+)(["..specialChar.."]*)")
-				if actualWord and languageUsed == 0 then
+				if actualWord and languageUsed == 0 then -- COMMON
                     local translatedWord = LanguageMage.TranslateWordToCommon(actualWord)
                     -- Convertit le mot traduit en minuscules et met le premier caractère en majuscule si nécessaire
                     translatedWord = translatedWord:lower()
@@ -23,14 +23,23 @@ function LanguageMage.Translate(phrase)
                     end
                     table.insert(translatedWords, translatedWord)
                 end
-                if actualWord and languageUsed == 1 then
+                if actualWord and languageUsed == 1 then -- ORC
                     table.insert(translatedWords, LanguageMage.TranslateWordToOrc(actualWord))
+                end
+				if actualWord and languageUsed == 2 then -- DRACONIC
+                    local translatedWord = LanguageMage.TranslateWordToDraconic(actualWord)
+                    -- Convertit le mot traduit en minuscules et met le premier caractère en majuscule si nécessaire
+                    translatedWord = translatedWord:lower()
+                    if i == 1 or lastWordWasSpecialChar then
+                        translatedWord = " "..translatedWord:sub(2,2):upper()..translatedWord:sub(3)
+                    end
+                    table.insert(translatedWords, translatedWord)
                 end
                 table.insert(translatedWords, specialChar)
                 lastWordWasSpecialChar = true
             elseif word == " " then
                 table.insert(translatedWords, " ")
-			elseif languageUsed == 0 then
+			elseif languageUsed == 0 then -- COMMON
                 local translatedWord = LanguageMage.TranslateWordToCommon(word)
 				-- Convertit le mot traduit en minuscules et met le premier caractère en majuscule si nécessaire
                 translatedWord = translatedWord:lower()
@@ -39,8 +48,17 @@ function LanguageMage.Translate(phrase)
                 end
                 table.insert(translatedWords, translatedWord)
                 lastWordWasSpecialChar = false
-            elseif languageUsed == 1 then
+            elseif languageUsed == 1 then -- ORC
                 table.insert(translatedWords, LanguageMage.TranslateWordToOrc(word))
+                lastWordWasSpecialChar = false
+            elseif languageUsed == 2 then -- DRACONIC
+                local translatedWord = LanguageMage.TranslateWordToDraconic(word)
+				-- Convertit le mot traduit en minuscules et met le premier caractère en majuscule si nécessaire
+                translatedWord = translatedWord:lower()
+				if i == 1 or lastWordWasSpecialChar then
+					translatedWord = " "..translatedWord:sub(2,2):upper()..translatedWord:sub(3)
+                end
+                table.insert(translatedWords, translatedWord)
                 lastWordWasSpecialChar = false
             end
         end
